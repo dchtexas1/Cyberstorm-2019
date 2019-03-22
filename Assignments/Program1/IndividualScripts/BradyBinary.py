@@ -2,6 +2,7 @@ import sys
 
 # take binary string n and converts to decimal
 def binary_to_dec(n):
+  # n is binary string, 2 specifies base. In this case base is 2
   return int(n, 2)
 
 
@@ -11,15 +12,19 @@ def binary_decode_by_bit(b_str, bits):
   temp_str = b_str
 
   while len(temp_str) > 0:
+    # save first n-bits of string
     to_decode = temp_str[0:bits]
+    # chop off first n-bits of string
     temp_str = temp_str[bits:]
     # decode character, handle backspace
     decode_dec = binary_to_dec(to_decode)
+    # check if backspace (backspace is 8 in ASCII)
     if (decode_dec == 8):
       decoded_chars = decoded_chars[:-1]
+    # if not backspace, convert int to ASCII and append to char array
     else:
       decoded_chars.append(chr(decode_dec))
-
+  # smash array into string and return
   return ''.join(decoded_chars)
 
 
