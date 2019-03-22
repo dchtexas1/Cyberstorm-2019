@@ -56,6 +56,7 @@ class VigenereCipher:
 if (len(sys.argv) < 3):
   raise Exception("Both encode/decode argument and key are required to start cipher")
 
+# This needs a little work still to get stdin and stdout working properly
 cipher = VigenereCipher(sys.argv[1], sys.argv[2])
 
 while 1==1:
