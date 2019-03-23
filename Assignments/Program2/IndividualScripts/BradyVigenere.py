@@ -2,7 +2,7 @@ import sys
 
 class VigenereCipher:
   def __init__(self, process, key):
-    self.key = key
+    self.key = key.lower()
     self.key_position = 0
     if process == '-e':
       self.process = "encrypt"
@@ -14,24 +14,23 @@ class VigenereCipher:
 
   # encodes or decodes string based on state of cipher
   def cipher(self, s):
-    s_lower = s.lower()
-    char_list = list(s_lower)
+    char_list = list(s)
     cipher_list = [self.cipher_char(c) for c in char_list]
     self.reset_key_postion()
     return ''.join(cipher_list)
 
   # encodes or decodes character based on state of cipher
   def cipher_char(self, c):
-    if c not in self.alpha:
+    if c.lower() not in self.alpha:
       return c
     key_char = self.get_current_key_char()
-    key_is_upper = key_char.isupper()
+    char_is_upper = c.isupper()
     if self.process == "encrypt":
-      cipher_val = self.alpha_inverse[(self.alpha[c] + self.alpha[key_char.lower()]) % 26]
+      cipher_val = self.alpha_inverse[(self.alpha[c.lower()] + self.alpha[key_char]) % 26]
     elif self.process == "decrypt":
-      cipher_val = self.alpha_inverse[(26 + self.alpha[c] - self.alpha[key_char.lower()]) % 26]
+      cipher_val = self.alpha_inverse[(26 + self.alpha[c.lower()] - self.alpha[key_char]) % 26]
       
-    return cipher_val.upper() if key_is_upper else cipher_val
+    return cipher_val.upper() if char_is_upper else cipher_val
 
   # encodes or decodes character based on state of cipher
   def get_current_key_char(self):
