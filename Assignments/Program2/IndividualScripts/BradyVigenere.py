@@ -29,7 +29,8 @@ class VigenereCipher:
     if self.process == "encrypt":
       cipher_val = self.alpha_inverse[(self.alpha[c] + self.alpha[key_char.lower()]) % 26]
     elif self.process == "decrypt":
-      cipher_val = (26 + self.alpha[c] - self.alpha[key_char.lower()]) % 26
+      cipher_val = self.alpha_inverse[(26 + self.alpha[c] - self.alpha[key_char.lower()]) % 26]
+      
     return cipher_val.upper() if key_is_upper else cipher_val
 
   # encodes or decodes character based on state of cipher
@@ -54,14 +55,14 @@ class VigenereCipher:
 
 # Main
 if (len(sys.argv) < 3):
-  raise Exception("Both encode/decode argument and key are required to start cipher")
+  print("Both encode/decode argument and key are required to start cipher")
+  exit()
 
-# This needs a little work still to get stdin and stdout working properly
 cipher = VigenereCipher(sys.argv[1], sys.argv[2])
 
-while 1==1:
+while 1:
   try:
     user_input = raw_input('')
     print(cipher.cipher(user_input))
-  except:
+  except EOFError:
     break
