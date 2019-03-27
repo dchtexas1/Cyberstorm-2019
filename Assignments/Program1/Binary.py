@@ -66,5 +66,10 @@ def binary_decode(b_str):
 
 
 # MAIN - reads each line of files and converts binary to ASCII
+# check if stdin is empty, exit if so
+if sys.stdin.isatty():
+    sys.stdout.write("Program needs input\n")
+    exit()
+
 for line in sys.stdin:
     binary_decode(line)
