@@ -64,6 +64,10 @@ def binary_decode(b_str):
         if len(b_str) % 7 == 0:
             sys.stdout.write("7-bit Binary to ASCII:\n" + binary_decode_by_bit(b_str, 7) + "\n")
 
+# checks if a given string contains only 0's and 1's
+def check_b_string(string):
+    return set(string).issubset(['0','1'])
+
 
 # MAIN - reads each line of files and converts binary to ASCII
 # check if stdin is empty, exit if so
@@ -72,4 +76,10 @@ if sys.stdin.isatty():
     exit()
 
 for line in sys.stdin:
-    binary_decode(line)
+    # remove extra space on ends, check if string contains only 0's and 1's
+    line_strip = line.strip()
+    if check_b_string(line_strip):
+        binary_decode(line_strip)
+    else:
+        sys.stdout.write("Invalid Input: input can only contain 0's and 1's\n")
+        exit()
