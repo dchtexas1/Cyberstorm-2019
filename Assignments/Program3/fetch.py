@@ -87,7 +87,7 @@ def perm_single_binary(p):
 # ---- MAIN ----
 # login to the FTP
 ftp = FTP(ftp_address)
-ftp.login()
+ftp.login() # we can add a username a password here if we need
 
 # change to correct directory in FTP
 for directory in dir_location.split('/'):
@@ -119,6 +119,6 @@ for line in ls:
     b_str += binary
     
 b_str_len = len(b_str)
-#b_string_trunc = b_str[0:b_str_len - (b_str_len % 7)] # here's another option that does the same thing
-b_string_trunc = b_str[0:(len(b_str) // 7) * 7] # change to string with a length divisible by 7 (there's probably a better way to do this)
+b_string_trunc = b_str[0:b_str_len - (b_str_len % 7)] # here's another option that does the same thing
+# b_string_trunc = b_str[0:](len(b_str) // 7) * 7 # change to string with a length divisible by 7 (there's probably a better way to do this)
 print(binary_decode(b_string_trunc))
