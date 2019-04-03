@@ -104,7 +104,6 @@ ftp.retrlines('LIST', ls.append)
 b_str = ""
 
 for line in ls:
-    print("line",line)
     if (mode == 0): # for 7-bits
         # skip decoding if contains any 1's in first 3 permissions
         if (ftp_perm_binary(line[0:3]) != "000"):
