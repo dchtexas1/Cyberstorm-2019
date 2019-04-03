@@ -19,7 +19,7 @@ from ftplib import FTP
 # Variables for Dr. Gourd
 mode = 0  # 0 - 7 bits, ignore files with any 1's in first 3; 1 - 10-bits, concatenate
 ftp_address = "jeangourd.com"
-dir_location = "/7"
+dir_location = "/"
 
 # ---- BINARY DECODER FUNCTIONS ----
 # take binary string n and converts to decimal
@@ -104,6 +104,7 @@ ftp.retrlines('LIST', ls.append)
 b_str = ""
 
 for line in ls:
+    print("line",line)
     if (mode == 0): # for 7-bits
         # skip decoding if contains any 1's in first 3 permissions
         if (ftp_perm_binary(line[0:3]) != "000"):
@@ -121,4 +122,4 @@ for line in ls:
 b_str_len = len(b_str)
 b_string_trunc = b_str[0:b_str_len - (b_str_len % 7)] # here's another option that does the same thing
 # b_string_trunc = b_str[0:](len(b_str) // 7) * 7 # change to string with a length divisible by 7 (there's probably a better way to do this)
-print(binary_decode(b_string_trunc))
+binary_decode(b_string_trunc)
