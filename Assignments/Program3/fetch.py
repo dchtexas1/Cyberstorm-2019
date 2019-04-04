@@ -125,7 +125,7 @@ for line in ls:
         binary = "" if (ftp_perm_binary(
             line[0:3]) != "000") else ftp_perm_binary(line[3:10])
     # mode 1: 10-bit
-    elif (mode == 1):  # for 10-bits
+    elif (mode == 1):
         binary = ftp_perm_binary(line[0:10])
     else:
         sys.stdout.write("Invalid Mode Selected\n")
