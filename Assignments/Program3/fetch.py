@@ -8,7 +8,7 @@
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
-# Description:
+# Description: Decodes covert messages hidden in permissions of FTP
 #
 # Run Instructions: python fetch.py
 #
@@ -20,13 +20,19 @@ from ftplib import FTP
 mode = 0  # 0 - 7 bits, ignore files with any 1's in first 3; 1 - 10-bits, concatenate
 ftp_address = "jeangourd.com"
 dir_location = "/"
+# NOTE: binary_length is the length of binary (7 or 8) at decode, not number of permissions 
+# to reference. For this program, keep at 7
+binary_length = 7
+
+# we don't need this for jeangourd.com, but maybe this will be useful later
+ftp_username = "anonymous"
+ftp_password = ""
 
 # ---- BINARY DECODER FUNCTIONS ----
 # take binary string n and converts to decimal
 def binary_to_dec(n):
     # n is binary string, 2 specifies base. In this case base is 2
     return int(n, 2)
-
 
 # decode binary by specified bit length
 def binary_decode_by_bit(b_str, bits):
@@ -49,7 +55,6 @@ def binary_decode_by_bit(b_str, bits):
             # smash array into string and return
     return ''.join(decoded_chars)
 
-
 # take binary string and converts to ASCII string
 # string length determines if 8-bit length, 7-bit, or both are used for decode
 def binary_decode(b_str):
@@ -71,7 +76,6 @@ def check_b_string(string):
 # ---- END BINARY DECODER FUNCTIONS ----
 
 
-
 # ---- FTP COVERT CHANNEL FUNCTIONS ----
 # turn everything into a list, call perm_single_binary, and join everything into a string
 def ftp_perm_binary(perm_str):
@@ -80,45 +84,50 @@ def ftp_perm_binary(perm_str):
 # if the characters in the variable 'binary' are a '-' set them '0', else '1'
 def perm_single_binary(p):
     return "0" if p == "-" else "1"
-# ---- END FTP COVERT CHANNEL FUNCTIONS ----
 
+# change FTP directory, returns true if success, false if fails
+def ftp_navigate(ftp, route):
+    for directory in route.split('/'):
+        try:
+            ftp.cwd(directory)
+        except:
+            sys.stdout.write("Directory was not found: {} (route: {})\n".format(directory, route))
+            return False
+    return True
+
+# returns a list of each line of ftp.retrlines. This includes files name, size, permissions, etc.
+def get_cwd_lines(ftp):
+    ls = []
+    ftp.retrlines('LIST', ls.append)
+    return ls
+# ---- END FTP COVERT CHANNEL FUNCTIONS ----
 
 
 # ---- MAIN ----
 # login to the FTP
 ftp = FTP(ftp_address)
-ftp.login() # we can add a username a password here if we need
-
-# change to correct directory in FTP
-for directory in dir_location.split('/'):
-    try:
-        ftp.cwd(directory)
-    except:
-        print("Directory was not found: " + directory + " (route: " + dir_location + ")")
-        exit()
+ftp.login(ftp_username, ftp_address)
+# change directories, exit if fails
+if not ftp_navigate(ftp, dir_location):
+    exit()
 
 # grab files/permission string from directory from FTP, save in list
-ls = []
-ftp.retrlines('LIST', ls.append)
-
+ls = get_cwd_lines(ftp)
 b_str = ""
-
+# convert files permissions based on mode specified
 for line in ls:
-    if (mode == 0): # for 7-bits
-        # skip decoding if contains any 1's in first 3 permissions
-        if (ftp_perm_binary(line[0:3]) != "000"):
-            binary = ""            
-        else:
-            binary = ftp_perm_binary(line[3:10])
-
-    elif (mode == 1): # for 10-bits
+    # mode 0: 7-bit, skip if contains 1's in first 3 permissions
+    if (mode == 0):
+        binary = "" if (ftp_perm_binary(
+            line[0:3]) != "000") else ftp_perm_binary(line[3:10])
+    # mode 1: 10-bit
+    elif (mode == 1):  # for 10-bits
         binary = ftp_perm_binary(line[0:10])
     else:
-        print("Invalid Mode Selected")
+        sys.stdout.write("Invalid Mode Selected\n")
         exit()
     b_str += binary
-    
-b_str_len = len(b_str)
-b_string_trunc = b_str[0:b_str_len - (b_str_len % 7)] # here's another option that does the same thing
-# b_string_trunc = b_str[0:](len(b_str) // 7) * 7 # change to string with a length divisible by 7 (there's probably a better way to do this)
+
+b_str_extra_bits = len(b_str) % binary_length
+b_string_trunc = b_str[0:len(b_str) - b_str_extra_bits]
 binary_decode(b_string_trunc)
