@@ -1,6 +1,6 @@
-##########################################################################
+##############################################################################
 # GitHub Repo Link: https://github.com/dchtexas1/Cyberstorm-2019
-# GitHub Assignment Link: https://github.com/dchtexas1/Cyberstorm-2019/tree/master/Assignments/Program3
+# https://github.com/dchtexas1/Cyberstorm-2019/tree/master/Assignments/Program3
 #
 # CSC 442
 # Date: 04/02/19
@@ -8,20 +8,22 @@
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
-# Description: Decodes covert messages hidden in permissions of FTP
+# Description: Decodes covert messages hidden in file permissions of FTP
 #
 # Run Instructions: python fetch.py
 #
-#######################################################################
+##############################################################################
 import sys
 from ftplib import FTP
 
 # Variables for Dr. Gourd
-mode = 0  # 0 - 7 bits, ignore files with any 1's in first 3; 1 - 10-bits, concatenate
+# 0 - 7 bits, ignore files with any 1's in first 3; 1 - 10-bits, concatenate
+mode = 0
 ftp_address = "jeangourd.com"
 dir_location = "/"
-# NOTE: binary_length is the length of binary (7 or 8) at decode, not number of permissions 
-# to reference. For this program, keep at 7
+# NOTE: binary_length is the length of binary (7 or 8) at decode
+# it is not number of permissions to reference. 
+# For all tests from jeangourd.com, keep at 7
 binary_length = 7
 
 # we don't need this for jeangourd.com, but maybe this will be useful later
@@ -59,15 +61,15 @@ def binary_decode_by_bit(b_str, bits):
 # string length determines if 8-bit length, 7-bit, or both are used for decode
 def binary_decode(b_str):
     if (len(b_str) % 8 != 0 and len(b_str) % 7 != 0):
-        sys.stdout.write(
-            "binary string does not appear to be 7 or 8-bit ASCII. Unable to decode.\n")
+        sys.stdout.write("binary string does not appear to be 7 or 8-bit " \
+            "ASCII. Unable to decode.\n")
     else:
         if len(b_str) % 8 == 0:
-            sys.stdout.write("8-bit Binary to ASCII:\n" +
-                             binary_decode_by_bit(b_str, 8) + "\n")
+            sys.stdout.write("8-bit Binary to ASCII:\n{}\n"
+                .format(binary_decode_by_bit(b_str, 8)))
         if len(b_str) % 7 == 0:
-            sys.stdout.write("7-bit Binary to ASCII:\n" +
-                             binary_decode_by_bit(b_str, 7) + "\n")
+            sys.stdout.write("7-bit Binary to ASCII:\n{}\n"
+                .format(binary_decode_by_bit(b_str, 7)))
 
 # checks if a given string contains only 0's and 1's
 def check_b_string(string):
@@ -77,7 +79,7 @@ def check_b_string(string):
 
 
 # ---- FTP COVERT CHANNEL FUNCTIONS ----
-# turn everything into a list, call perm_single_binary, and join everything into a string
+# run perm_single_binary on each and join back into string
 def ftp_perm_binary(perm_str):
     return "".join([perm_single_binary(p) for p in list(perm_str)])
 
@@ -91,11 +93,13 @@ def ftp_navigate(ftp, route):
         try:
             ftp.cwd(directory)
         except:
-            sys.stdout.write("Directory was not found: {} (route: {})\n".format(directory, route))
+            sys.stdout.write("Directory was not found: {} (route: {})\n"
+                .format(directory, route))
             return False
     return True
 
-# returns a list of each line of ftp.retrlines. This includes files name, size, permissions, etc.
+# returns a list of each line of ftp.retrlines.
+# this includes files name, size, permissions, etc.
 def get_cwd_lines(ftp):
     ls = []
     ftp.retrlines('LIST', ls.append)
