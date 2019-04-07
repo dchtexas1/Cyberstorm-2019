@@ -15,6 +15,11 @@
 ##############################################################################
 import sys
 import socket
+from time import time
+
+# variables for Dr. Gourd
+ip = "localhost"
+port = 1337
 
 class BinaryDecoder(object):
     def __init__(self):
@@ -54,3 +59,11 @@ class BinaryDecoder(object):
 
 
 # ---- MAIN ----
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((ip, port))
+
+data = s.recv(4096)
+while (data.rstrip("\n") != "EOF"):
+    sys.stdout.write(data)
+    sys.stdout.flush()
+s.close()
