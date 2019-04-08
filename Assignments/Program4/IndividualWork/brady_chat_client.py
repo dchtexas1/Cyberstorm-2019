@@ -16,12 +16,15 @@
 import sys
 import socket
 from time import time
+from binascii import unhexlify
+
+ONE = 0.1
 
 # variables for Dr. Gourd
-ip = "localhost"
-port = 1337
-# ip = "jeangourd.com"
-# port = 31337
+# ip = "localhost"
+# port = 1337
+ip = "jeangourd.com"
+port = 31337
 
 class BinaryDecoder(object):
     def __init__(self):
@@ -64,10 +67,26 @@ class BinaryDecoder(object):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 
+covert_bin = ""
 
 data = s.recv(4096)
+deltas = []
 while (data.rstrip("\n") != "EOF"):
     sys.stdout.write(data)
     sys.stdout.flush()
+    t0 = time()
     data = s.recv(4096)
+    t1 = time()
+    delta = round(t1 - t0, 3)
+    deltas.append(delta)
+    if (delta >= ONE):
+        covert_bin += "1"
+    else:
+        covert_bin += "0"
 s.close()
+
+print(covert_bin)
+
+bd = BinaryDecoder()
+print(bd.decode(covert_bin, 8))
+# print(deltas)

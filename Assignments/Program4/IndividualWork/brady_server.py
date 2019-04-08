@@ -17,10 +17,11 @@ ONE = 0.1
 msg = "According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible. Yellow, black. Yellow, black. Yellow, black. Yellow, black. Ooh, black and yellow! Let's shake it up a little.\n"
 
 c = None
-n = 0
+
 while 1:
     try:
         # start up server
+        n = 0
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         port = 1337
         s.bind(("", port))
