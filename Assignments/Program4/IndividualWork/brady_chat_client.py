@@ -20,6 +20,8 @@ from time import time
 # variables for Dr. Gourd
 ip = "localhost"
 port = 1337
+# ip = "jeangourd.com"
+# port = 31337
 
 class BinaryDecoder(object):
     def __init__(self):
@@ -62,8 +64,10 @@ class BinaryDecoder(object):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 
+
 data = s.recv(4096)
 while (data.rstrip("\n") != "EOF"):
     sys.stdout.write(data)
     sys.stdout.flush()
+    data = s.recv(4096)
 s.close()
