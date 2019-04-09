@@ -18,7 +18,7 @@ import socket
 from time import time
 from binascii import unhexlify
 
-ONE = 0.1
+ONE = 0.08
 
 # variables for Dr. Gourd
 # ip = "localhost"
@@ -68,7 +68,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((ip, port))
 
 covert_bin = ""
-
+print("[START RECEIVE]")
 data = s.recv(4096)
 deltas = []
 while (data.rstrip("\n") != "EOF"):
@@ -84,9 +84,10 @@ while (data.rstrip("\n") != "EOF"):
     else:
         covert_bin += "0"
 s.close()
+print("[MESSAGE RECEIVED]")
 
-print(covert_bin)
+# print(covert_bin)
 
 bd = BinaryDecoder()
-print(bd.decode(covert_bin, 8))
-# print(deltas)
+print(bd.decode(covert_bin, 8).split("EOF")[0])
+print(deltas)
