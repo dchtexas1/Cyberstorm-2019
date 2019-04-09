@@ -8,23 +8,28 @@
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
-# Description: Decodes covert messages hidden in file permissions of FTP
+# Description: Decodes covert messages hidden in timing schemes of overt
+# messages on a Chat Server
 #
-# Run Instructions: python fetch.py
+# Run Instructions: python chat_client.py
 #
 ##############################################################################
 import sys
 import socket
 from time import time
 from binascii import unhexlify
+from collections import Counter
 
-ONE = 0.08
+ONE = 0.09 # To correct the data, it might be a good idea to change the length of time slightly
+binary_length = 8  # binary length can be 7 or 8
+# binary_length = 7 # binary length can be 7 or 8
 
 # variables for Dr. Gourd
 # ip = "localhost"
 # port = 1337
 ip = "jeangourd.com"
 port = 31337
+
 
 class BinaryDecoder(object):
     def __init__(self):
@@ -64,8 +69,8 @@ class BinaryDecoder(object):
 
 
 # ---- MAIN ----
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((ip, port))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # create the socket
+s.connect((ip, port)) # connect to the ip and port specified above
 
 covert_bin = ""
 print("[START RECEIVE]")
@@ -89,5 +94,7 @@ print("[MESSAGE RECEIVED]")
 # print(covert_bin)
 
 bd = BinaryDecoder()
-print(bd.decode(covert_bin, 8).split("EOF")[0])
-print(deltas)
+print(bd.decode(covert_bin, binary_length).split("EOF")[0])
+
+# print(deltas)
+print(Counter(deltas))
