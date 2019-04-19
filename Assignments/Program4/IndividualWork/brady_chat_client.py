@@ -33,7 +33,7 @@ port = 1337
 MODE = 0
 
 # Other modifications
-DEBUG = False
+DEBUG = True
 ASCII_LENGTH = 8
 class BinaryDecoder(object):
     def __init__(self):
@@ -103,7 +103,7 @@ def get_delta_binary_value(delta, mode, high, low):
     if (mode != 0 and mode != 1):
         raise ValueError("Invalid Mode")
     low_bit, high_bit = ("1", "0") if mode == 1 else ("0", "1")
-    midpoint = high - low
+    midpoint = float(high + low) / 2
     if (delta <= midpoint):
         return low_bit
     else:
