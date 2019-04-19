@@ -9,28 +9,32 @@
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
 # Description: Decodes covert messages hidden in timing schemes of overt
-# messages on a Chat Server
+# messages on a chat Server
 #
 # Run Instructions: python chat_client.py
 #
 ##############################################################################
-import sys
-import socket
+import sys, socket, string
 from time import time
-from binascii import unhexlify
 from collections import Counter
 
-ONE = 0.09 # To correct the data, it might be a good idea to change the length of time slightly
-binary_length = 8  # binary length can be 7 or 8
-# binary_length = 7 # binary length can be 7 or 8
+# Server
+ip = "localhost"
+port = 1337
+# ip = "jeangourd.com"
+# port = 31337
 
-# variables for Dr. Gourd
-# ip = "localhost"
-# port = 1337
-ip = "jeangourd.com"
-port = 31337
+# ---- Mode ----
+# high refers to longest time delay, low is the shortest
+# ex: if time is 0.025 and .100, then .100 is high
+# 0 - ZERO (low), ONE (high)
+# 1 - ZERO (high), ONE (low)
+# 2 - Output results of both mode 1 and 2
+MODE = 0
 
-
+# Other modifications
+DEBUG = False
+ASCII_LENGTH = 8
 class BinaryDecoder(object):
     def __init__(self):
         pass
@@ -65,36 +69,67 @@ class BinaryDecoder(object):
                 decoded_chars = decoded_chars[:-1]
             else:
                 decoded_chars.append(chr(decode_dec))
+        decoded_chars = [i if i in string.printable else "?" for i in decoded_chars]
         return ''.join(decoded_chars)
 
+# ---- Chat Client Functions ----
+def recieve_msg(ip, port):
+    RECV_AMT = 4096
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # create the socket
+    s.connect((ip, port)) # connect to the ip and port specified above
+
+    print("[connect to chat server]\n...")
+    data = s.recv(RECV_AMT)
+    deltas = []
+
+    while (data.rstrip("\n") != "EOF"):
+        sys.stdout.write(data)
+        sys.stdout.flush()
+        t0 = time()
+        data = s.recv(RECV_AMT)
+        t1 = time()
+        delta = round(t1 - t0, 3)
+        deltas.append(delta)
+    s.close()
+    print("[disconnect from the chat server]\n...")
+    return deltas
+
+def build_binary_from_deltas(deltas, mode, high, low):
+    """take array of delta timing values and translate to binary"""
+    return "".join([get_delta_binary_value(delta, mode, high, low) for delta in deltas])
+
+def get_delta_binary_value(delta, mode, high, low):
+    """converts delta time value to best guess binary value"""
+    if (mode != 0 and mode != 1):
+        raise ValueError("Invalid Mode")
+    low_bit, high_bit = ("1", "0") if mode == 1 else ("0", "1")
+    midpoint = high - low
+    if (delta <= midpoint):
+        return low_bit
+    else:
+        return high_bit
+
+def print_debug(deltas):
+    print "\n----- START Debug -----"
+    print deltas
+    print "\n"
+    print Counter(deltas)
+    print "----- END Debug -----\n"
 
 # ---- MAIN ----
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # create the socket
-s.connect((ip, port)) # connect to the ip and port specified above
+deltas = recieve_msg(ip, port)
+peaks = [i[0] for i in Counter(deltas).most_common(2)]
+high = max(peaks)
+low = min(peaks)
 
-covert_bin = ""
-print("[START RECEIVE]")
-data = s.recv(4096)
-deltas = []
-while (data.rstrip("\n") != "EOF"):
-    sys.stdout.write(data)
-    sys.stdout.flush()
-    t0 = time()
-    data = s.recv(4096)
-    t1 = time()
-    delta = round(t1 - t0, 3)
-    deltas.append(delta)
-    if (delta >= ONE):
-        covert_bin += "1"
-    else:
-        covert_bin += "0"
-s.close()
-print("[MESSAGE RECEIVED]")
-
-# print(covert_bin)
+if DEBUG:
+    print_debug(deltas)
 
 bd = BinaryDecoder()
-print(bd.decode(covert_bin, binary_length).split("EOF")[0])
 
-# print(deltas)
-print(Counter(deltas))
+if MODE == 0 or MODE == 2:
+    msg = bd.decode(build_binary_from_deltas(deltas, 0, high, low), ASCII_LENGTH)
+    print "Covert message: " + msg.split("EOF")[0]
+if MODE == 1 or MODE == 2:
+    msg = bd.decode(build_binary_from_deltas(deltas, 1, high, low), ASCII_LENGTH)
+    print "Covert message: " + msg.split("EOF")[0]
