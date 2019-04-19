@@ -35,6 +35,7 @@ MODE = 0
 # Other modifications
 DEBUG = True
 ASCII_LENGTH = 8
+TIME_ACCURACY = 3
 class BinaryDecoder(object):
     def __init__(self):
         pass
@@ -73,7 +74,7 @@ class BinaryDecoder(object):
         return ''.join(decoded_chars)
 
 # ---- Chat Client Functions ----
-def recieve_msg(ip, port):
+def recieve_msg(ip, port, time_accuracy = 3):
     RECV_AMT = 4096
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # create the socket
     s.connect((ip, port)) # connect to the ip and port specified above
@@ -88,7 +89,7 @@ def recieve_msg(ip, port):
         t0 = time()
         data = s.recv(RECV_AMT)
         t1 = time()
-        delta = round(t1 - t0, 3)
+        delta = round(t1 - t0, time_accuracy)
         deltas.append(delta)
     s.close()
     print("[disconnect from the chat server]\n...")
@@ -117,7 +118,7 @@ def print_debug(deltas):
     print "----- END Debug -----\n"
 
 # ---- MAIN ----
-deltas = recieve_msg(ip, port)
+deltas = recieve_msg(ip, port, TIME_ACCURACY)
 peaks = [i[0] for i in Counter(deltas).most_common(2)]
 high = max(peaks)
 low = min(peaks)
