@@ -19,10 +19,10 @@ from time import time
 from collections import Counter
 
 # Server
-ip = "localhost"
-port = 1337
-# ip = "jeangourd.com"
-# port = 31337
+#ip = "localhost"
+#port = 1337
+ip = "jeangourd.com"
+port = 31337
 
 # ---- Mode ----
 # high refers to longest time delay, low is the shortest
@@ -33,9 +33,10 @@ port = 1337
 MODE = 0
 
 # Other modifications
-DEBUG = True
+DEBUG = False
 ASCII_LENGTH = 8
 TIME_ACCURACY = 3
+
 class BinaryDecoder(object):
     def __init__(self):
         pass
