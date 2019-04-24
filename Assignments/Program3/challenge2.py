@@ -89,6 +89,8 @@ def perm_single_binary(p):
 # login to the FTP
 ftp = FTP()
 ftp.connect(ftp_address,port)
+# first parameter is login
+# second parameter is password
 ftp.login('spartans','spartansSPARTANSspartans')
 
 # change to correct directory in FTP

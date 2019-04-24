@@ -15,17 +15,25 @@
 ##############################################################################\
 
 import sys
-from binascii import hexlify, unhexlify
-#variables that can be changed
-key2use = "key"
+from binascii import hexlify
 
-def encode(message, key):
-    return hexlify(''.join(chr(ord(a)^ord(b)) for a, b in zip(message,key)))
+#sets our key to open a file in the current directory
+file_object = open("key",'r')
 
-def decode(message, key):
-    return unhexlify(''.join(chr(ord(a)^ord(b)) for a, b in zip(message,key)))
+class XORCrypto(object):
+
+    def __init__(self, message, key):
+        self.message = message
+        self.key = key
+
+    def XOR(self, message, key):
+            return self.encode(message, key)
+
+    def encode(self, message, key):
+        return hexlify(''.join(chr(ord(a)^ord(b)) for (a, b) in zip(message,key)))
 
 
 
-encoded = encode(sys.argv[1], sys.argv[2])
-print encode(sys.argv[1], sys.argv[2])
+
+xor = XORCrypto(sys.argv[1],file_object)
+xor.XOR(sys.argv[1],file_object)
