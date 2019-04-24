@@ -9,7 +9,7 @@
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
 # Description: Decodes covert messages hidden in timing schemes of overt
-# messages on a chat Server
+# messages on a chat server. Auto detects timeing.
 #
 # Run Instructions: python chat_client.py
 #
