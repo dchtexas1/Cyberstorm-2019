@@ -20,28 +20,24 @@ from time import time
 from collections import Counter
 
 # Server
-ip = "localhost"
-port = 1337
-# ip = "jeangourd.com"
-# port = 31337
+ip = "jeangourd.com"
+port = 31337
 
 # ---- Mode ----
 # high refers to longest time delay, low is the shortest
 # ex: if time is 0.025 and .100, then .100 is high
+# program will auto detect low and high times
 # 0 - ZERO (low), ONE (high)
 # 1 - ZERO (high), ONE (low)
 # 2 - Output results of both mode 1 and 2
 MODE = 0
 
 # Other modifications
-DEBUG = False
+DEBUG = False # change to true to see timing printout
 ASCII_LENGTH = 8
 TIME_ACCURACY = 3
 
 class BinaryDecoder(object):
-    def __init__(self):
-        pass
-
     def decode(self, b_str, ascii_length):
         """Return ASCII value of binary string"""
         b_str = str(b_str).strip()
@@ -73,12 +69,13 @@ class BinaryDecoder(object):
             else:
                 decoded_chars.append(chr(decode_dec))
         # remove some printable characters that are not used
-        pos_chars = string.printable.replace("\r\x0b\x0c", "") 
+        pos_chars = string.printable.replace("\r\x0b\x0c", "")
+        # replace nonprintable with "?"
         decoded_chars = [i if i in pos_chars else "?" for i in decoded_chars]
         return ''.join(decoded_chars)
 
 # ---- Chat Client Functions ----
-def recieve_msg(ip, port, time_accuracy = 3):
+def receive_msg(ip, port, time_accuracy = 3):
     RECV_AMT = 4096
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # create the socket
     s.connect((ip, port)) # connect to the ip and port specified above
@@ -86,9 +83,9 @@ def recieve_msg(ip, port, time_accuracy = 3):
     print("[connect to chat server]\n...")
     data = s.recv(RECV_AMT)
     deltas = []
-
     overt_msg = ""
     last_three_chars = ""
+    # receive data loop
     while (data.rstrip("\n") != "EOF" and last_three_chars != "EOF" ):
         overt_msg += data
         sys.stdout.write(data)
@@ -128,7 +125,7 @@ def print_debug(deltas):
     print "----- END Debug -----\n"
 
 # ---- MAIN ----
-deltas = recieve_msg(ip, port, TIME_ACCURACY)
+deltas = receive_msg(ip, port, TIME_ACCURACY)
 peaks = [i[0] for i in Counter(deltas).most_common(2)]
 high, low = max(peaks), min(peaks)
 
@@ -137,10 +134,12 @@ if DEBUG:
 
 bd = BinaryDecoder()
 
+# ZERO (low), ONE (high)
 if MODE == 0 or MODE == 2:
     msg = bd.decode(build_binary_from_deltas(deltas, 0, high, low), ASCII_LENGTH)
     print "Covert message:",
     print msg.split("EOF")[0]
+# ZERO (high), ONE (low)
 if MODE == 1 or MODE == 2:
     msg = bd.decode(build_binary_from_deltas(deltas, 1, high, low), ASCII_LENGTH)
     print "Covert message:",
