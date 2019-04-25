@@ -9,7 +9,8 @@
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
 # Description: Decodes covert messages hidden in timing schemes of overt
-# messages on a chat server. Auto detects timeing.
+# messages on a chat server. Auto detects timing.  See Mode notes below for
+# instructions.
 #
 # Run Instructions: python chat_client.py
 #
@@ -19,10 +20,10 @@ from time import time
 from collections import Counter
 
 # Server
-#ip = "localhost"
-#port = 1337
-ip = "jeangourd.com"
-port = 31337
+ip = "localhost"
+port = 1337
+# ip = "jeangourd.com"
+# port = 31337
 
 # ---- Mode ----
 # high refers to longest time delay, low is the shortest
@@ -71,7 +72,9 @@ class BinaryDecoder(object):
                 decoded_chars = decoded_chars[:-1]
             else:
                 decoded_chars.append(chr(decode_dec))
-        decoded_chars = [i if i in string.printable else "?" for i in decoded_chars]
+        # remove some printable characters that are not used
+        pos_chars = string.printable.replace("\r\x0b\x0c", "") 
+        decoded_chars = [i if i in pos_chars else "?" for i in decoded_chars]
         return ''.join(decoded_chars)
 
 # ---- Chat Client Functions ----
@@ -84,7 +87,10 @@ def recieve_msg(ip, port, time_accuracy = 3):
     data = s.recv(RECV_AMT)
     deltas = []
 
-    while (data.rstrip("\n") != "EOF"):
+    overt_msg = ""
+    last_three_chars = ""
+    while (data.rstrip("\n") != "EOF" and last_three_chars != "EOF" ):
+        overt_msg += data
         sys.stdout.write(data)
         sys.stdout.flush()
         t0 = time()
@@ -92,8 +98,11 @@ def recieve_msg(ip, port, time_accuracy = 3):
         t1 = time()
         delta = round(t1 - t0, time_accuracy)
         deltas.append(delta)
+        # save last three characters to handle EOF hang case
+        if len(overt_msg) >= 3:
+            last_three_chars = overt_msg[-3:]
     s.close()
-    print("[disconnect from the chat server]\n...")
+    print("...\n[disconnect from the chat server]")
     return deltas
 
 def build_binary_from_deltas(deltas, mode, high, low):
@@ -121,8 +130,7 @@ def print_debug(deltas):
 # ---- MAIN ----
 deltas = recieve_msg(ip, port, TIME_ACCURACY)
 peaks = [i[0] for i in Counter(deltas).most_common(2)]
-high = max(peaks)
-low = min(peaks)
+high, low = max(peaks), min(peaks)
 
 if DEBUG:
     print_debug(deltas)
@@ -131,7 +139,9 @@ bd = BinaryDecoder()
 
 if MODE == 0 or MODE == 2:
     msg = bd.decode(build_binary_from_deltas(deltas, 0, high, low), ASCII_LENGTH)
-    print "Covert message: " + msg.split("EOF")[0]
+    print "Covert message:",
+    print msg.split("EOF")[0]
 if MODE == 1 or MODE == 2:
     msg = bd.decode(build_binary_from_deltas(deltas, 1, high, low), ASCII_LENGTH)
-    print "Covert message: " + msg.split("EOF")[0]
+    print "Covert message:",
+    print msg.split("EOF")[0]

@@ -38,7 +38,10 @@ while 1:
             else:
                 time.sleep(ONE)
             n = (n + 1) % len(covert_bin)
+        # c.send("EOF")
         c.send("EOF")
+        # time.sleep(2)
+        # c.send("F")
     except KeyboardInterrupt:
         print ("Shutting down server...")
         break
