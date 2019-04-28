@@ -15,12 +15,6 @@
 ##############################################################################
 import binascii, string, sys
 
-def ascii_to_binary(a_string):
-  return bin(int(binascii.hexlify(a_string), 16))[2:].zfill(len(a_string) * 8)
-
-def binary_to_ascii(b_string):
-  return binascii.unhexlify('%x' % int(b_string, 2))
-
 def file_to_binary(f):
   """reads each bit of a file and converts to binary string"""
   b = ''
@@ -46,15 +40,19 @@ def match_length(s, length):
 def xor(b_str_1, b_str_2):
   return bin(int(b_str_1, 2) ^ int(b_str_2, 2))[2:].zfill(len(b_str_1))
 
+def binary_to_ascii(b_string):
+  return binascii.unhexlify(('%x' % int(b_string, 2)).zfill(len(b_string) / 4))
+
 # ---- Main ----
 key_f = open('key', 'rb')
 key_bin = file_to_binary(key_f)
-  
-file_bin = ""
-for line in sys.stdin:
-  file_bin += ascii_to_binary(line)
+stdin_bin = file_to_binary(sys.stdin)
 
-modified_key_bin = match_length(key_bin, len(file_bin))
-xored_bin = xor(file_bin, modified_key_bin)
-xor_ascii = binary_to_ascii(xored_bin)
+# modify the key to match length of the file
+modified_key_bin = match_length(key_bin, len(stdin_bin))
+# preform xor cipher on key and file binary
+xor_bin = xor(stdin_bin, modified_key_bin)
+
+# decode and print output
+xor_ascii = binary_to_ascii(xor_bin)
 sys.stdout.write(xor_ascii)
