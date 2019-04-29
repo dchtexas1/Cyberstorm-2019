@@ -8,9 +8,11 @@
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
-# Description: implements XOR crypto for message.
+# Description: Implements XOR crypto for input. Requires standard input file.
+#              Uses file called 'key' in same directory as program.  Outputs
+#              result of XOR cipher.
 #
-# Run Instructions: python xor.py
+# Run Instructions: python xor.py < [file]
 #
 ##############################################################################
 import binascii, string, sys
@@ -44,9 +46,25 @@ def binary_to_ascii(b_string):
   return binascii.unhexlify(('%x' % int(b_string, 2)).zfill(len(b_string) / 4))
 
 # ---- Main ----
+# exit if stdin is empty
+if sys.stdin.isatty():
+    sys.stdout.write("Program needs input.  Exiting...\n")
+    exit()
+
+# read standard in and convert to binary string
+stdin_bin = file_to_binary(sys.stdin)
+
+# read key file and convert to binary string
 key_f = open('key', 'rb')
 key_bin = file_to_binary(key_f)
-stdin_bin = file_to_binary(sys.stdin)
+
+# make sure files have contents
+if (len(stdin_bin) < 1):
+  sys.stdout.write("Input file is empty.\n")
+  exit()
+elif (len(key_bin) < 1):
+  sys.stdout.write("Key file cannot be empty.\n")
+  exit()
 
 # modify the key to match length of the file
 modified_key_bin = match_length(key_bin, len(stdin_bin))
