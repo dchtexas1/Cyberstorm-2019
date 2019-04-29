@@ -46,12 +46,3 @@ class xor(object):
 # Function Calls
 XOR = xor(input, newkey)
 print XOR.XORCIPHER(input, newkey)
-
-    def encode(self, message, key):
-        return hexlify(''.join(chr(ord(a)^ord(b)) for (a, b) in zip(message,key)))
-
-
-
-
-xor = XORCrypto(sys.argv[1],file_object)
-xor.XOR(sys.argv[1],file_object)
