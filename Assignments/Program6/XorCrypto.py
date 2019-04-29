@@ -10,24 +10,42 @@
 #
 # Description: Decodes message using an XOR Crypto method.
 #
-# Run Instructions: python chat_client.py
+# Run Instructions (key): XorCrypto.py < ciphertext
+# Run Instructions (key2): XorCrypto.py < ciphertext2 > new_file
 #
 ##############################################################################\
 
+# Imports command line arguments, making redirection possible
 import sys
-from binascii import hexlify
 
-#sets our key to open a file in the current directory
+# Initiates our input array of arguments
+input = ""
+
+
+for arg in sys.stdin:
+    input = "".join(arg)
+
+
+# Sets our key to open a file in the current directory
 file_object = open("key",'r')
+#Then takes said key and puts it all together to one newkey
+newkey = "".join(file_object.read())
 
-class XORCrypto(object):
+# Our xor class, because classes are fun!
+class xor(object):
 
-    def __init__(self, message, key):
-        self.message = message
-        self.key = key
+    #Constructo
+    def __init__ (self, message, key):
+        self.key = key;
+        self.message = message;
 
-    def XOR(self, message, key):
-            return self.encode(message, key)
+    # Our Cipher Function which takes a message and a key that can be changed
+    def XORCIPHER(self, message, key):
+        return(''.join((chr)(ord(m) ^ ord(k)) for (m, k) in zip(message,key)))
+
+# Function Calls
+XOR = xor(input, newkey)
+print XOR.XORCIPHER(input, newkey)
 
     def encode(self, message, key):
         return hexlify(''.join(chr(ord(a)^ord(b)) for (a, b) in zip(message,key)))
