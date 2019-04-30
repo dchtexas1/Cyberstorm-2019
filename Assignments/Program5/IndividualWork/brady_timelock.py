@@ -4,7 +4,7 @@ import sys
 # this is a timezone library that will help convert to UTC
 import pytz # NOTE: pip install pytz
 
-TEST = True
+TEST = False
 TEST_TIME = "2017 04 26 15 14 30"
 
 def get_four_char_hash(h):
@@ -19,6 +19,7 @@ def hash(time):
     return md5(md5(str(time)).hexdigest()).hexdigest()
 
 def seconds_since(epoch_time, current_time):
+  """returns seconds since epoch and current.  Times must be datetime data type"""
   local = pytz.timezone ("America/Chicago")
   # convert epoch to UTC
   epoch_local_dt = local.localize(epoch_time, is_dst=None)
@@ -30,24 +31,23 @@ def seconds_since(epoch_time, current_time):
   time_diff = int((current_utc_dt - epoch_utc_dt).total_seconds())
   return time_diff - (time_diff % 60)
 
+# ---- Main -----
 # exit if standard in is empty
 if sys.stdin.isatty():
     sys.stdout.write("Program needs input\n")
     exit()
 
-# grab lines from standard in
+# save standard in as epoch string
 lines = []
 for line in sys.stdin:
   lines.append(line)
-
-# input shouldn't be over 1 line, but only save first line
 epoch_str = lines[0].strip()
 
+# save epoch and current time as datetime data structures
 epoch_time = datetime.strptime(epoch_str, "%Y %m %d %H %M %S")
+current_time = datetime.strptime(TEST_TIME, "%Y %m %d %H %M %S") if TEST else datetime.now()
 
-if (TEST):
-  current_time = datetime.strptime(TEST_TIME, "%Y %m %d %H %M %S")
-else:
-  current_time = datetime.now()
-
-print get_four_char_hash(hash(seconds_since(epoch_time, current_time)))
+# get time difference, hash, then print out modified hash
+time_diff = seconds_since(epoch_time, current_time)
+time_hash = hash(time_diff)
+print get_four_char_hash(time_hash)
