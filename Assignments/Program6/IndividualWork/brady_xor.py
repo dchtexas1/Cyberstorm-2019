@@ -27,7 +27,7 @@ def file_to_binary(f):
   return b
 
 def match_length(s, length):
-  """Extend or tuncate string to match given length"""
+  """Extend or truncate string to match given length"""
   if (length < 1):
     raise ValueError("Length must be 1 or greater")
   bin_len = len(s)
