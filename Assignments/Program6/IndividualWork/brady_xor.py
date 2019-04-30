@@ -46,7 +46,7 @@ def binary_to_ascii(b_string):
   return binascii.unhexlify(('%x' % int(b_string, 2)).zfill(len(b_string) / 4))
 
 # ---- Main ----
-# exit if stdin is empty
+# exit if standard in is empty
 if sys.stdin.isatty():
     sys.stdout.write("Program needs input.  Exiting...\n")
     exit()
@@ -68,7 +68,7 @@ elif (len(key_bin) < 1):
 
 # modify the key to match length of the file
 modified_key_bin = match_length(key_bin, len(stdin_bin))
-# preform xor cipher on key and file binary
+# perform xor cipher on key and file binary
 xor_bin = xor(stdin_bin, modified_key_bin)
 
 # decode and print output
