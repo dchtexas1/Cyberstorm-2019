@@ -13,9 +13,7 @@
 # Run Instructions: python steg.py -(bB) -(sr) -o<val> [-i<val>] -w<val> [-h<val>]
 #
 ##############################################################################
-import binascii
-import string
-import sys
+import binascii, sys
 
 # hardcode the sentinel
 # SENTINEL = "00000000 11111111 00000000 00000000 11111111 00000000".replace(' ', '')
@@ -98,10 +96,10 @@ def bit_method_store(settings, sentinel):
     i = offset
     j = 0
     while j < len(hidden_bytes):
-        for k in range(7):
+        for k in range(8):
             wrapper_bytes[i] &= 0b11111110
             wrapper_bytes[i] |= ((hidden_bytes[j] & 0b10000000) >> 7)
-            hidden_bytes[j]  << 1
+            hidden_bytes[j] = hidden_bytes[j]  << 1
             i += interval
         j += 1
 
@@ -110,7 +108,6 @@ def bit_method_store(settings, sentinel):
 
 # still a work in progress
 def bit_method_retrieve(settings, sentinel):
-    print('starting...')
     sentinel = [ord(i) for i in sentinel]
     wrapper_bytes = get_file_bytes(settings['wrapper'], "int")
     hidden_bytes = []
@@ -123,18 +120,18 @@ def bit_method_retrieve(settings, sentinel):
     # This still needs to be written
     while last_six != sentinel:
         hidden_bytes.append(0b0)
-        for k in range(7):
+        for k in range(8):
+            hidden_bytes[j] = hidden_bytes[j] << 1
             lsb = wrapper_bytes[i] & 1
             hidden_bytes[j] = (hidden_bytes[j] & ~1) | lsb
-            i += 1
+            i += interval
         if len(hidden_bytes) >= 6:
             last_six = hidden_bytes[-6:]
 
-        print(last_six)
         j += 1
 
-    # hidden_bytes = [chr(i) for i in hidden_bytes]
-    return hidden_bytes
+    hidden_bytes = [chr(i) for i in hidden_bytes]
+    return hidden_bytes[:-6]
 '''
 def bit_method(settings, sentinel):
     wrapper_bytes = get_file_bytes(settings['wrapper'])
@@ -209,7 +206,7 @@ def bitmethod():
 
 # ----- Main -----
 settings = set_settings(sys.argv)
-print settings
+# print settings
 if settings['method'] == 'byte' and settings['mode'] == 'store':
     output = byte_method_store(settings, SENTINEL)
 elif settings['method'] == 'byte' and settings['mode'] == 'retrieve':
