@@ -38,9 +38,13 @@ def set_settings(args):
             settings['wrapper'] = value[2:]
         elif arg == '-h':
             settings['hidden'] = value[2:]
-        else:
-            raise ValueError("Unknown argument ({})".format(value))
     return settings
+
+
+def check_settings(settings):
+    if settings['method'] == 'bit':
+         
+    pass
 
 
 def get_file_bytes(f, mode="str"):
@@ -145,6 +149,8 @@ def bit_method_retrieve(settings, sentinel):
 
 # ----- Main -----
 settings = set_settings(sys.argv)
+
+check_settings()
 
 if settings['method'] == 'byte' and settings['mode'] == 'store':
     output = byte_method_store(settings, SENTINEL)
