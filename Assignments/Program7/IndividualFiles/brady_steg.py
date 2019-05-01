@@ -22,7 +22,7 @@ import sys
 SENTINEL = ['\x00', '\xff', '\x00', '\x00', '\xff', '\x00']
 
 def set_settings(args):
-    settings = {'interval': '', 'wrapper': '', 'mode': '', 'offset': '', 'hidden': '', 'method': ''}
+    settings = {'interval': '1', 'wrapper': '', 'mode': '', 'offset': '0', 'hidden': '', 'method': ''}
     for value in sys.argv:
         arg = value[0:2]
         if arg == '-b':
@@ -44,12 +44,12 @@ def set_settings(args):
     return settings
 
 
-def file_to_binary(f):
+def file_to_binary(f, mode="str"):
     """reads each bit of a file and converts to binary string"""
     byte = f.read(1)
     bytes_list = []
     while byte != '':
-        bytes_list.append(byte) # add each byte into the byte list
+        bytes_list.append(ord(byte) if mode=="int" else byte) # add each byte into the byte list
         # b += bin(int(binascii.hexlify(byte), 16))[2:].zfill(8)
         byte = f.read(1)
     return bytes_list
@@ -59,7 +59,7 @@ def binary_to_ascii(b_string):
     return binascii.unhexlify(('%x' % int(b_string, 2)).zfill(len(b_string) / 4))
 
 def byte_method_retrieve(settings, sentinel):
-    wrapper_bytes = get_file_bin(settings['wrapper'])
+    wrapper_bytes = get_file_bytes(settings['wrapper'])
     hidden_bytes = []
     offset = int(settings['offset'])
     interval = int(settings['interval'])
@@ -75,8 +75,8 @@ def byte_method_retrieve(settings, sentinel):
     return hidden_bytes[:-6]
     
 def byte_method_store(settings, sentinel):
-    wrapper_bytes = get_file_bin(settings['wrapper'])
-    hidden_bytes = get_file_bin(settings['hidden']) + sentinel
+    wrapper_bytes = get_file_bytes(settings['wrapper'])
+    hidden_bytes = get_file_bytes(settings['hidden']) + sentinel
     offset = int(settings['offset'])
     interval = int(settings['interval'])
     
@@ -87,10 +87,48 @@ def byte_method_store(settings, sentinel):
         i += 1
     return wrapper_bytes
 
+# I believe there's an error here.  Also, will have to wait until retrieve is written to test
+def bit_method_store(settings, sentinel):
+    sentinel = [ord(i) for i in sentinel]
+    wrapper_bytes = get_file_bytes(settings['wrapper'], 'int')
+    hidden_bytes = get_file_bytes(settings['hidden'], 'int') + sentinel
+    offset = int(settings['offset'])
+    interval = int(settings['interval'])
+
+    i = offset
+    j = 0
+    while j < len(hidden_bytes):
+        for k in range(7):
+            wrapper_bytes[i] &= 0b11111110
+            wrapper_bytes[i] |= ((hidden_bytes[j] & 0b10000000) >> 7)
+            hidden_bytes[j]  << 1
+            i += interval
+        j += 1
+
+    
+    wrapper_bytes = [chr(i) for i in wrapper_bytes]
+    return wrapper_bytes
+
+# still a work in progress
+def bit_method_retrieve(settings, sentinel):
+    sentinel = [ord(i) for i in sentinel]
+    wrapper_bytes = get_file_bytes(settings['wrapper'], "int")
+    hidden_bytes = []
+    offset = int(settings['offset'])
+    interval = int(settings['interval'])
+
+    i = offset
+    j = 0
+    last_six = []
+    # This still needs to be written
+    # while last_six != sentinel::
+    
+    hidden_bytes = [chr(i) for i in hidden_bytes]
+    return hidden_bytes
 '''
 def bit_method(settings, sentinel):
-    wrapper_bytes = get_file_bin(settings['wrapper'])
-    hidden_bytes = get_file_bin(settings['hidden']) + sentinel
+    wrapper_bytes = get_file_bytes(settings['wrapper'])
+    hidden_bytes = get_file_bytes(settings['hidden']) + sentinel
     offset = int(settings['offset'])
     interval = int(settings['interval'])
 
@@ -100,11 +138,11 @@ def bit_method(settings, sentinel):
 
 '''        
 
-def get_file_bin(f):
+def get_file_bytes(f, mode="str"):
     if f == '':
         raise ValueError('file cannot name cannot be empty')
     wrapper_file = open(f, 'rb')
-    return file_to_binary(wrapper_file)
+    return file_to_binary(wrapper_file, mode)
 
 
     
@@ -162,13 +200,15 @@ def bitmethod():
 # ----- Main -----
 settings = set_settings(sys.argv)
 # print settings
-if settings['method'] == 'byte' and settings['mode'] == "store":
+if settings['method'] == 'byte' and settings['mode'] == 'store':
     output = byte_method_store(settings, SENTINEL)
 elif settings['method'] == 'byte' and settings['mode'] == 'retrieve':
     output = byte_method_retrieve(settings, SENTINEL)
-# elif settings['method'] == 'bit':
-#     output = bit_method_store(settings, SENTINEL)
+elif settings['method'] == 'bit' and settings['mode'] == 'store':
+    output = bit_method_store(settings, SENTINEL)
+elif settings['method'] == 'bit' and settings['mode'] == 'retrieve':
+    output = bit_method_store(settings, SENTINEL)
 
 
 
-# sys.stdout.write("".join([str(b) for b in output]))
+sys.stdout.write("".join([str(b) for b in output]))
