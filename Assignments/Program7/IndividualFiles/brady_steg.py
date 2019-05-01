@@ -3,7 +3,7 @@
 # https://github.com/dchtexas1/Cyberstorm-2019/tree/master/Assignments/Program7
 #
 # CSC 442
-# Date: 04/25/19
+# Date: 05/01/19
 # Team Name: Romans
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
@@ -38,6 +38,8 @@ def set_settings(args):
             settings['wrapper'] = value[2:]
         elif arg == '-h':
             settings['hidden'] = value[2:]
+        else:
+            raise ValueError("Unknown argument ({})".format(value))
     return settings
 
 
