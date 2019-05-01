@@ -87,7 +87,7 @@ def byte_method_store(settings, sentinel):
         i += 1
     return wrapper_bytes
 
-# I believe there's an error here.  Also, will have to wait until retrieve is written to test
+# I think this should work, but retrieve method will have to be written
 def bit_method_store(settings, sentinel):
     sentinel = [ord(i) for i in sentinel]
     wrapper_bytes = get_file_bytes(settings['wrapper'], 'int')
@@ -105,12 +105,12 @@ def bit_method_store(settings, sentinel):
             i += interval
         j += 1
 
-    
     wrapper_bytes = [chr(i) for i in wrapper_bytes]
     return wrapper_bytes
 
 # still a work in progress
 def bit_method_retrieve(settings, sentinel):
+    print('starting...')
     sentinel = [ord(i) for i in sentinel]
     wrapper_bytes = get_file_bytes(settings['wrapper'], "int")
     hidden_bytes = []
@@ -121,9 +121,19 @@ def bit_method_retrieve(settings, sentinel):
     j = 0
     last_six = []
     # This still needs to be written
-    # while last_six != sentinel::
-    
-    hidden_bytes = [chr(i) for i in hidden_bytes]
+    while last_six != sentinel:
+        hidden_bytes.append(0b0)
+        for k in range(7):
+            lsb = wrapper_bytes[i] & 1
+            hidden_bytes[j] = (hidden_bytes[j] & ~1) | lsb
+            i += 1
+        if len(hidden_bytes) >= 6:
+            last_six = hidden_bytes[-6:]
+
+        print(last_six)
+        j += 1
+
+    # hidden_bytes = [chr(i) for i in hidden_bytes]
     return hidden_bytes
 '''
 def bit_method(settings, sentinel):
@@ -199,7 +209,7 @@ def bitmethod():
 
 # ----- Main -----
 settings = set_settings(sys.argv)
-# print settings
+print settings
 if settings['method'] == 'byte' and settings['mode'] == 'store':
     output = byte_method_store(settings, SENTINEL)
 elif settings['method'] == 'byte' and settings['mode'] == 'retrieve':
@@ -207,7 +217,7 @@ elif settings['method'] == 'byte' and settings['mode'] == 'retrieve':
 elif settings['method'] == 'bit' and settings['mode'] == 'store':
     output = bit_method_store(settings, SENTINEL)
 elif settings['method'] == 'bit' and settings['mode'] == 'retrieve':
-    output = bit_method_store(settings, SENTINEL)
+    output = bit_method_retrieve(settings, SENTINEL)
 
 
 
