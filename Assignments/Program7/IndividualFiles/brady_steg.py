@@ -42,8 +42,7 @@ def set_settings(args):
 
 
 def check_settings(settings):
-    if settings['method'] == 'bit':
-         
+    # if settings['method'] == 'bit':
     pass
 
 
