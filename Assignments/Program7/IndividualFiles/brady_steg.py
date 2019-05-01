@@ -19,7 +19,7 @@ import sys
 
 # hardcode the sentinel
 # SENTINEL = "00000000 11111111 00000000 00000000 11111111 00000000".replace(' ', '')
-SENTINEL = [0x0, 0xff, 0x0, 0x0, 0xff, 0x0]
+SENTINEL = ['\x00', '\xff', '\x00', '\x00', '\xff', '\x00']
 
 def set_settings(args):
     settings = {'interval': '', 'wrapper': '', 'mode': '', 'offset': '', 'hidden': '', 'method': ''}
@@ -32,7 +32,7 @@ def set_settings(args):
         elif arg == '-s':
             settings['mode'] = 'store'
         elif arg == '-r':
-            settings['mode'] = 'hide'
+            settings['mode'] = 'retrieve'
         elif arg == '-o':
             settings['offset'] = value[2:]
         elif arg == '-i':
@@ -57,6 +57,22 @@ def file_to_binary(f):
 
 def binary_to_ascii(b_string):
     return binascii.unhexlify(('%x' % int(b_string, 2)).zfill(len(b_string) / 4))
+
+def byte_method_retrieve(settings, sentinel):
+    wrapper_bytes = get_file_bin(settings['wrapper'])
+    hidden_bytes = []
+    offset = int(settings['offset'])
+    interval = int(settings['interval'])
+
+    i = 0
+    last_six = []
+    while last_six != sentinel:
+        hidden_bytes.append(wrapper_bytes[offset])
+        offset += interval
+        i += 1
+        if len(hidden_bytes) >= 6:
+            last_six = hidden_bytes[-6:]
+    return hidden_bytes[:-6]
     
 def byte_method_store(settings, sentinel):
     wrapper_bytes = get_file_bin(settings['wrapper'])
@@ -145,12 +161,14 @@ def bitmethod():
 
 # ----- Main -----
 settings = set_settings(sys.argv)
-print settings
-# if settings['method'] == 'byte' and settings['mode']:
-#     output = byte_method_store(settings, SENTINEL)
+# print settings
+if settings['method'] == 'byte' and settings['mode'] == "store":
+    output = byte_method_store(settings, SENTINEL)
+elif settings['method'] == 'byte' and settings['mode'] == 'retrieve':
+    output = byte_method_retrieve(settings, SENTINEL)
 # elif settings['method'] == 'bit':
 #     output = bit_method_store(settings, SENTINEL)
 
 
-# print("".join([str(b) for b in output]))
-# print (output)
+
+# sys.stdout.write("".join([str(b) for b in output]))
