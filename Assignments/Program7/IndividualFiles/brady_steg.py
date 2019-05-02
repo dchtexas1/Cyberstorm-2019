@@ -8,7 +8,7 @@
 # Names: Brady Anderson, Sam Dominguez, Dax Henson, Michael McCrary,
 #        Daniel Munger, Stephanie Niemiec, Holland Wolf
 #
-# Description: Implements steg algorithm.
+# Description: Implements steg algorithm. Can read data from stegged files 
 #
 # Run Instructions: python steg.py -(bB) -(sr) -o<val> [-i<val>] -w<val> [-h<val>]
 #
@@ -41,11 +41,6 @@ def set_settings(args):
     return settings
 
 
-def check_settings(settings):
-    # if settings['method'] == 'bit':
-    pass
-
-
 def get_file_bytes(f, mode="str"):
     """returns a list of the bytes from specified file.  
     Mode can be used to specify whether to return bytes as integers or strings
@@ -75,7 +70,10 @@ def byte_method_store(settings, sentinel):
     
     i = 0
     while i < len(hidden_bytes):
-        wrapper_bytes[offset] = hidden_bytes[i]
+        try:
+            wrapper_bytes[offset] = hidden_bytes[i]
+        except:
+            raise Exception("Is your wrapper file too small?")
         offset += interval
         i += 1
     return wrapper_bytes
@@ -91,7 +89,10 @@ def byte_method_retrieve(settings, sentinel):
     i = 0
     last_six = []
     while last_six != sentinel:
-        hidden_bytes.append(wrapper_bytes[offset])
+        try:
+            hidden_bytes.append(wrapper_bytes[offset])
+        except:
+            raise Exception('Reached end of file without finding sentinel.')
         offset += interval
         i += 1
         if len(hidden_bytes) >= 6:
@@ -111,7 +112,10 @@ def bit_method_store(settings, sentinel):
     j = 0
     while j < len(hidden_bytes):
         for k in range(8):
-            wrapper_bytes[i] &= 0b11111110
+            try:
+                wrapper_bytes[i] &= 0b11111110
+            except:
+                raise Exception('Is your wrapper file too small?')
             wrapper_bytes[i] |= ((hidden_bytes[j] & 0b10000000) >> 7)
             hidden_bytes[j] = hidden_bytes[j]  << 1
             i += interval
@@ -135,8 +139,11 @@ def bit_method_retrieve(settings, sentinel):
     while last_six != sentinel:
         hidden_bytes.append(0b0)
         for k in range(8):
-            hidden_bytes[j] = hidden_bytes[j] << 1
-            lsb = wrapper_bytes[i] & 1
+            hidden_bytes[j] <<= 1
+            try:
+                lsb = wrapper_bytes[i] & 1
+            except:
+                raise Exception('Reached end of file without finding sentinel.')
             hidden_bytes[j] = (hidden_bytes[j] & ~1) | lsb
             i += interval
         if len(hidden_bytes) >= 6:
@@ -148,8 +155,6 @@ def bit_method_retrieve(settings, sentinel):
 
 # ----- Main -----
 settings = set_settings(sys.argv)
-
-check_settings()
 
 if settings['method'] == 'byte' and settings['mode'] == 'store':
     output = byte_method_store(settings, SENTINEL)
