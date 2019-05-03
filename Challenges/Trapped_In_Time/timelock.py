@@ -22,8 +22,8 @@ import sys
 # this is a timezone library that will help convert to UTC
 import pytz # NOTE: pip install pytz
 
-TEST = True
-TEST_CURRENT_TIME = "2018 04 27 10 00 00" # This needs to be updated for challenge
+TEST = False
+TEST_CURRENT_TIME = "2019 05 03 16 00 00" # This needs to be updated for challenge
 
 def get_four_char_hash(h):
     print(h, h[len(h)/2], "<-- I think this is the middle character")

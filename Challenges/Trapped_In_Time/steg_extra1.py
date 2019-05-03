@@ -17,8 +17,8 @@ import binascii, sys, os
 
 SENTINEL = ['\x00', '\xff', '\x00', '\x00', '\xff', '\x00']
 
-intervals = [2**i for i in range(1,12)] # it might be good to use list comprehension here if it's needed
-offsets = [2**i for i in range(1,12)]
+intervals = [256, 2048]#[2**i for i in range(1,12)] # it might be good to use list comprehension here if it's needed
+offsets = [2**i for i in range(0,20)]
 reverse = False
 
 def set_settings(args):
