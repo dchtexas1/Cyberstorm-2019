@@ -17,8 +17,8 @@ import binascii, sys, os
 
 SENTINEL = ['\x00', '\xff', '\x00', '\x00', '\xff', '\x00']
 
-intervals = [2, 4, 8, 16] # it might be good to use list comprehension here if it's needed
-offsets = [1024, 2048]
+intervals = [2, 4, 8, 16, 32, 64, 128, 256, 512] # it might be good to use list comprehension here if it's needed
+offsets = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
 reverse = False
 
 def set_settings(args):
@@ -44,8 +44,8 @@ def set_settings(args):
             settings['hidden'] = value[2:]
         elif arg == '-d':
             settings['dir'] = value[2:]
-        elif arg == '-e':
-            settings['ext'] = value[2:]
+        #elif arg == '-e':
+        #    settings['ext'] = value[2:]
     return settings
 
 
@@ -198,7 +198,7 @@ for i in intervals:
             print str(e)
             continue
 
-        f= open("{}/i{}o{}.{}".format(settings['dir'], settings['interval'], settings['offset'], settings['ext']) ,"w+")
+        f= open("{}/i{}o{}".format(settings['dir'], settings['interval'], settings['offset']) ,"w+")
         output = output[::-1] if reverse else output
         data = "".join([str(b) for b in output])
         f.write(data)
